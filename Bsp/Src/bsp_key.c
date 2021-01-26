@@ -68,7 +68,7 @@ void BSP_KEY_Init(KEY_INDEX Key)
 {
 	GPIO_InitTypeDef GPIO_InitStruct =
 	{ 0 };
-	/* Enalbe the GPIO_KEY Clock */
+	/* Enable the GPIO_KEY Clock */
 	KEYx_CLK_ENABLE(Key);
 	/* Configure the GPIO_LED pin */
 	GPIO_InitStruct.Pin = KEY_PIN[Key];

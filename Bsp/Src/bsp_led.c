@@ -1,6 +1,6 @@
 /***************************************************************
  * 模块名称 : 指示灯驱动模块
- * 文件名	  : BSPLED.C
+ * 文件名	  : BSP_LED.C
  * 说明  	  : 驱动LED指示灯
  * 版本号	  : v1.0
  * 修改记录 :
@@ -79,25 +79,25 @@ LED3_PIN, };
 /***************************************************************
  * @name			BSP_LED_Init
  * @brief		Init LED GPIO.
- * @param[in]	Led: Specifies the Led to be configured.
+ * @param[in]	ledIndex: Specifies the ledIndex to be configured.
  * 				This parameter can be one of following parameters:
  * @arg			LED0~LED3
  * @return		None
  * @note
  ****************************************************************/
-void BSP_LED_Init(LED_INDEX Led)
+void BSP_LED_Init(LED_INDEX ledIndex)
 {
 	GPIO_InitTypeDef GPIO_InitStruct =
 	{ 0 };
 	/* Enalbe the GPIO_LED Clock */
-	LEDx_CLK_ENABLE(Led);
+	LEDx_CLK_ENABLE(ledIndex);
 	/* Configure the GPIO_LED pin */
-	GPIO_InitStruct.Pin = LED_PIN[Led];
+	GPIO_InitStruct.Pin = LED_PIN[ledIndex];
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(LED_PORT[Led], &GPIO_InitStruct);
-	HAL_GPIO_WritePin(LED_PORT[Led], LED_PIN[Led], GPIO_PIN_SET);
+	HAL_GPIO_Init(LED_PORT[ledIndex], &GPIO_InitStruct);
+	HAL_GPIO_WritePin(LED_PORT[ledIndex], LED_PIN[ledIndex], GPIO_PIN_SET);
 }
 
 /***************************************************************
@@ -119,42 +119,42 @@ void BSP_LED_Config()
 /***************************************************************
  * @name			BSP_LED_On
  * @brief		Turns selected LED On
- * @param[in]	Led: Specifies the Led to be set on.
+ * @param[in]	ledIndex: Specifies the ledIndex to be set on.
  * 				This parameter can be one of following parameters:
  * @arg			LED0~LED3
  * @return		None
  * @note
  ****************************************************************/
-void BSP_LED_On(LED_INDEX Led)
+void BSP_LED_On(LED_INDEX ledIndex)
 {
-	HAL_GPIO_WritePin(LED_PORT[Led], LED_PIN[Led], GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_PORT[ledIndex], LED_PIN[ledIndex], GPIO_PIN_RESET);
 }
 
 /***************************************************************
  * @name			BSP_LED_Off
  * @brief		Turns selected LED Off
- * @param[in]	Led: Specifies the Led to be set off.
+ * @param[in]	ledIndex: Specifies the ledIndex to be set off.
  * 				This parameter can be one of following parameters:
  * @arg			LED0~LED3
  * @return		None
  * @note
  ****************************************************************/
-void BSP_LED_Off(LED_INDEX Led)
+void BSP_LED_Off(LED_INDEX ledIndex)
 {
-	HAL_GPIO_WritePin(LED_PORT[Led], LED_PIN[Led], GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LED_PORT[ledIndex], LED_PIN[ledIndex], GPIO_PIN_SET);
 }
 
 /***************************************************************
  * @name			BSP_LED_Toggle
  * @brief		Toggles the selected LED.
- * @param[in]	Led: Specifies the Led to be toggled.
+ * @param[in]	ledIndex: Specifies the ledIndex to be toggled.
  * 				This parameter can be one of following parameters:
  * @arg			LED0~LED3
  * @return		None
  * @note
  ****************************************************************/
-void BSP_LED_Toggle(LED_INDEX Led)
+void BSP_LED_Toggle(LED_INDEX ledIndex)
 {
-	HAL_GPIO_TogglePin(LED_PORT[Led], LED_PIN[Led]);
+	HAL_GPIO_TogglePin(LED_PORT[ledIndex], LED_PIN[ledIndex]);
 }
 

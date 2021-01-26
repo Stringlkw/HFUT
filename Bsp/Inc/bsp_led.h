@@ -1,32 +1,31 @@
 /*******************************************************
  * 模块名称 : 指示灯驱动模块
- * 文件名	  : BSPLED.H
+ * 文件名	  : BSP_LED.H
  * 说明  	  : 头文件,提供自定义数据类型及外部调用的接口函数的声明
  * 版本号	  : v1.0
  * 修改记录 :
- * 	版本号		日期		作者
- * 	v1.0	     2020-4-16	               李康伟
+ * 版本号		日期		作者
+ * v1.0	     2020-4-16	               李康伟
  ********************************************************/
 
-#ifndef BSP_BSPLED_H_
-#define BSP_BSPLED_H_
+#ifndef BSP_LED_H_
+#define BSP_LED_H_
 
 /********************************************************
  用户自定义类型
  ********************************************************/
-typedef enum
-{
-	LED0 = 0, LED1 = 1, LED2 = 2, LED3 = 3
+typedef enum {
+    LED0 = 0, LED1 = 1, LED2 = 2, LED3 = 3
 } LED_INDEX;
 
 /********************************************************
  本模块提供给外部调用的函数
  ********************************************************/
-void BSP_LED_Init(LED_INDEX Led);	//指示灯初始化
-void BSP_LED_Config();	//多个指示灯初始化
-void BSP_LED_On(LED_INDEX Led);	//开启指示灯
-void BSP_LED_Off(LED_INDEX Led);	//翻转指示灯状态
-void BSP_LED_Toggle(LED_INDEX Led);	//翻转指示灯状态
+void BSP_LED_Init(LED_INDEX ledIndex);    //指示灯初始化
+void BSP_LED_Config();    //全部指示灯初始化
+void BSP_LED_On(LED_INDEX ledIndex);    //开启指示灯
+void BSP_LED_Off(LED_INDEX ledIndex);    //翻转指示灯状态
+void BSP_LED_Toggle(LED_INDEX ledIndex);    //翻转指示灯状态
 
-#endif /* BSP_BSPLED_H_ */
+#endif /* BSP_LED_H_ */
 /********************(END OF FILE)***********************/

@@ -7,27 +7,25 @@
 // * 	版本号		日期		作者
 // * 	v1.0	     2020-4-16	               李康伟
 // ********************************************************/
-//
-//#ifndef INCLUDE_BSP_MH_Z19B_H_
-//#define INCLUDE_BSP_MH_Z19B_H_
-//
-//
-//#include "stm32f1xx_hal.h"
-//#include "stdbool.h"
-//#include "string.h"
-//
-//#include "main.h"
-//#include "usart.h"
-//#include "gpio.h"
-//
-///********************************************************
-// 本模块提供给外部调用的函数
-// ********************************************************/
-//
-//uint8_t getCheckSum();
-//void BSP_CO2_Tx (uint16_t *CO2Data);
-//
-//
-//
-//
-//#endif /* INCLUDE_BSP_MH_Z19B_H_ */
+
+#ifndef BSP_MH_Z19B_H_
+#define BSP_MH_Z19B_H_
+
+
+#include "stm32f1xx_hal.h"
+#include "stdbool.h"
+#include "string.h"
+
+#include "main.h"
+#include "gpio.h"
+
+/********************************************************
+ 本模块提供给外部调用的函数
+ ********************************************************/
+
+void BSP_CO2_Read (uint16_t * concentration);
+
+
+
+
+#endif /* BSP_MH_Z19B_H_ */
