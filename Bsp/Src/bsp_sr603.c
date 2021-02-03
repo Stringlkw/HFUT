@@ -15,38 +15,38 @@
  ******************************************************************************
  */
 
-#include "bsp_sr501.h"
+#include "bsp_sr603.h"
 
 //引脚定义
-#define SR501_INT_PORT         GPIOA
-#define SR501_INT_PIN          GPIO_PIN_8
-#define SR501_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()
+#define SR603_INT_PORT         GPIOA
+#define SR603_INT_PIN          GPIO_PIN_8
+#define SR603_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()
 
-#define SR501_INT_EXTI_IRQ          EXTI9_5_IRQn
+#define SR603_INT_EXTI_IRQ          EXTI9_5_IRQn
 
 /**
  * @brief  配置 IO为EXTI中断口，并设置中断优先级
  * @param  无
  * @retval 无
  */
-void BSP_SR501_EXTI_Config()
+void BSP_SR603_Config()
 {
 	GPIO_InitTypeDef GPIO_InitStruct =
 	{ 0 };
 
 	/*开启SR501 GPIO口的时钟*/
-	SR501_CLK_ENABLE();
+	SR603_CLK_ENABLE();
 
 	/*--------------------------GPIO配置-----------------------------*/
 	/* 选择按键用到的GPIO */
-	GPIO_InitStruct.Pin = SR501_INT_PIN;
+	GPIO_InitStruct.Pin = SR603_INT_PIN;
 	/* 配置为浮空输入 */
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(SR501_INT_PORT, &GPIO_InitStruct);
+	HAL_GPIO_Init(SR603_INT_PORT, &GPIO_InitStruct);
 
-	HAL_NVIC_SetPriority(SR501_INT_EXTI_IRQ, 15, 0);
-	HAL_NVIC_EnableIRQ(SR501_INT_EXTI_IRQ);
+	HAL_NVIC_SetPriority(SR603_INT_EXTI_IRQ, 0, 0);
+	HAL_NVIC_EnableIRQ(SR603_INT_EXTI_IRQ);
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
 
 }

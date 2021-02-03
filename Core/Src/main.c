@@ -27,12 +27,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_led.h"
-#include "bsp_hdc1080.h"
 #include "bsp_oled.h"
 #include "retarget.h"
-#include "stdio.h"
-#include "bsp_mh_z19b.h"
-#include "bsp_systick.h"
+#include "bsp_gsm.h"
 
 
 /* USER CODE END Includes */
@@ -44,7 +41,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define LENGTH 100
+#define GSM_PHONE_NUM                     "17364698105"
+
+/* 私有变量 ------------------------------------------------------------------*/
+char testbuff[100];
+uint8_t len;
+char *rebuff;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,9 +58,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t RxBuffer[LENGTH]; //鎺ユ敹缂撳啿鍖?
-uint8_t RecCount = 0;
-uint8_t RxFlag = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,67 +78,77 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
+    uint8_t testCard = 0;
 
-  /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* USER CODE BEGIN Init */
+    /* USER CODE BEGIN Init */
     RetargetInit(&huart1);
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /* Configure the system clock */
+    SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+    /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+    /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_I2C1_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_I2C1_Init();
+    MX_USART1_UART_Init();
+    MX_USART2_UART_Init();
+    /* USER CODE BEGIN 2 */
 
     /* Initialize all configured peripherals */
     BSP_LED_Config();
-    BSP_HDC1080_Init();
     BSP_OLED_Config();
-    BSP_SYSTICK_Init();
+    BSP_GSM_Config(); //初始化串口
 
-    BSP_Delay(1000);
-    printf("*** UART commucition using IDLE IT + DMA ***\r\n");
-    printf(" Please enter characters : \r\n");
-    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE); //浣胯兘IDLE涓柇
-    HAL_UART_Receive_DMA(&huart1, (uint8_t *) RxBuffer, LENGTH); //鍚姩DMA鎺ユ敹
+    printf("硬石GSM模块短信收发例程\n");
+    BSP_LED_On(LED1);
+    /* 检测模块响应是否正常 */
+    while (BSP_GSM_Init() != GSM_TRUE)
+    {
+        printf("\n模块响应测试不正常！！\n");
+        printf("若模块响应测试一直不正常，请检查模块的连接或是否已开启电源开关\n");
+        HAL_Delay(100);
+    }
+    BSP_LED_On(LED2);
+    printf("\n通过了模块响应测试\n");
 
+    printf("\n正在等待GSM模块初始化\n");
+    while (BSP_GSM_IsInsertCard() != GSM_TRUE)
+    {
+        if(++testCard > 20)
+        {
+            printf("\n检测不到电话卡\n");
+        }
+        HAL_Delay(100);
+    }
+    printf("\n初始化完成，5秒后开始发送短信测试... \n");
+    BSP_GSM_Sms(GSM_PHONE_NUM, "HELLO HFUT");
+    printf("\n英文短信已发送至：%s，为方便测试，请在程序中修改接收短信的手机号码\n", GSM_PHONE_NUM);
 
-  /* USER CODE END 2 */
+    /* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
     while (1)
     {
-        if (RxFlag == 1)
-        {
-            RxFlag = 0;
-            RecCount = LENGTH - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx);
-            HAL_UART_Transmit_DMA(&huart1, (uint8_t *) RxBuffer, RecCount);
-            RecCount = 0;
-            __HAL_DMA_DISABLE(&hdma_usart1_rx);
-        }
-    /* USER CODE END WHILE */
+        BSP_LED_On(LED0);
+        /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+        /* USER CODE BEGIN 3 */
     }
-  /* USER CODE END 3 */
+    /* USER CODE END 3 */
 }
 
 /**
@@ -146,51 +157,40 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-}
-
-/* USER CODE BEGIN 4 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART1)
+    /** Initializes the RCC Oscillators according to the specified parameters
+    * in the RCC_OscInitTypeDef structure.
+    */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        HAL_UART_Receive_DMA(&huart1, (uint8_t *) RxBuffer, LENGTH);
+        Error_Handler();
+    }
+    /** Initializes the CPU, AHB and APB buses clocks
+    */
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                  | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+    {
+        Error_Handler();
     }
 }
 
-void HAL_UART_IdleCpltCallback(UART_HandleTypeDef *huart)
-{
-    RxFlag = 1;
-}
+/* USER CODE BEGIN 4 */
+
 
 /* USER CODE END 4 */
 
@@ -200,10 +200,10 @@ void HAL_UART_IdleCpltCallback(UART_HandleTypeDef *huart)
   */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
+    /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
 
-  /* USER CODE END Error_Handler_Debug */
+    /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT

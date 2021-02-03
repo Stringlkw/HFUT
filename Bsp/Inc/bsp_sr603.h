@@ -5,7 +5,7 @@
 #include "stm32f1xx_hal.h"
 
 
-void BSP_SR501_EXTI_Config();
+void BSP_SR603_Config();
 
 
 #endif /* __EXTI_H */
